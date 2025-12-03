@@ -5,7 +5,7 @@ from datetime import datetime
 from PIL import Image
 
 
-def take_screenshot(save_path=None, target_width=1728, target_height=1117):
+def take_screenshot(save_path=None, target_width=1920, target_height=1080):
     """
     截取屏幕截图，并根据目标分辨率调整尺寸
 
