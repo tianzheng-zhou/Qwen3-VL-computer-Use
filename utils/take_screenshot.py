@@ -11,14 +11,14 @@ def take_screenshot(save_path=None, target_width=1920, target_height=1080):
 
     Args:
         save_path (str, optional): 保存路径，默认为 src/screenshots/screenshot_YYYYMMDD_HHMMSS.png
-        target_width (int): 目标宽度，默认为1728
-        target_height (int): 目标高度，默认为1117
+        target_width (int): 目标宽度，默认为1920
+        target_height (int): 目标高度，默认为1080
 
     Returns:
         str: 保存的截图路径
     """
     # 等待几秒钟，确保你有时间切换到需要截屏的窗口
-    print("即将截图，3秒后执行...请切换到需要截图的界面")
+    print(f"即将截图，3秒后执行...请切换到需要截图的界面")
     time.sleep(3)
 
     # 创建截图目录（如果不存在）
@@ -38,7 +38,6 @@ def take_screenshot(save_path=None, target_width=1920, target_height=1080):
     print(f"原始屏幕分辨率: {original_width}x{original_height}")
 
     # 调整图像大小以匹配目标分辨率
-    # 这解决了Retina显示屏截图尺寸是实际显示尺寸两倍的问题
     if original_width != target_width or original_height != target_height:
         print(f"调整图像尺寸从 {original_width}x{original_height} 到 {target_width}x{target_height}")
         screenshot = screenshot.resize((target_width, target_height), Image.LANCZOS)
