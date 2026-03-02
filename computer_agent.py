@@ -10,7 +10,8 @@ from utils.chat_history import Messages
 # dotenv.load_dotenv("/Users/zjlz/Qwen3-VL-cookbook/pythonProject6/.env")
 dotenv.load_dotenv()
 
-MODEL = "gui-plus"
+MODEL = "qwen3.5-plus"
+# MODEL = "qwen3.5-flash"
 # MODEL = "qwen3-vl-plus"
 # MODEL = "qwen3-vl-flash"
 
@@ -68,7 +69,36 @@ def get_qwen3_vl_action(messages, model_id):
     return output_text, action, computerUse
 
 
-user_query = input("请输入你的需求")
+# 读取 prompt 文件夹下的所有文件
+prompt_dir = "prompt"
+if not os.path.exists(prompt_dir):
+    os.makedirs(prompt_dir)
+
+files = [f for f in os.listdir(prompt_dir) if os.path.isfile(os.path.join(prompt_dir, f))]
+
+if not files:
+    print(f"警告: {prompt_dir} 文件夹为空，请添加提示词文件。")
+    user_query = input("请输入你的需求: ")
+else:
+    print(f"在 {prompt_dir} 文件夹中发现以下提示词文件:")
+    for i, file in enumerate(files):
+        print(f"{i + 1}. {file}")
+    
+    while True:
+        try:
+            choice = int(input("请选择要使用的提示词文件编号: "))
+            if 1 <= choice <= len(files):
+                selected_file = files[choice - 1]
+                with open(os.path.join(prompt_dir, selected_file), "r", encoding="utf-8") as f:
+                    user_query = f.read().strip()
+                print(f"已选择文件: {selected_file}")
+                print(f"读取到的需求: {user_query}")
+                break
+            else:
+                print("无效的编号，请重新输入。")
+        except ValueError:
+            print("请输入有效的数字编号。")
+
 message = Messages(user_query)
 action_num = 1
 
@@ -90,6 +120,11 @@ while True:
 
     print(message.messages)
     output_text, action, computer_use = get_qwen3_vl_action(message.messages, MODEL)
+    
+    # 修正模型可能输出 click 而非 left_click 的问题
+    if action["arguments"]["action"] == "click":
+        action["arguments"]["action"] = "left_click"
+        
     message.add_qwen_response(output_text)
     if action["arguments"]["action"] == "terminate":
         if action["arguments"]["status"] == "success":
