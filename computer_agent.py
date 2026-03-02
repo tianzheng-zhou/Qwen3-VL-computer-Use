@@ -10,9 +10,9 @@ from utils.chat_history import Messages
 # dotenv.load_dotenv("/Users/zjlz/Qwen3-VL-cookbook/pythonProject6/.env")
 dotenv.load_dotenv()
 
-# MODEL = "qwen3-vl-235b-a22b-instruct"
+MODEL = "gui-plus"
 # MODEL = "qwen3-vl-plus"
-MODEL = "qwen3-vl-flash"
+# MODEL = "qwen3-vl-flash"
 
 # 获取Windows系统缩放比例的函数
 def get_windows_scaling():
