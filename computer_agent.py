@@ -15,6 +15,15 @@ MODEL = "qwen3.5-plus"
 # MODEL = "qwen3-vl-plus"
 # MODEL = "qwen3-vl-flash"
 
+
+def get_client():
+    """创建 OpenAI 客户端"""
+    return OpenAI(
+        api_key=os.getenv("DASHSCOPE_API_KEY"),
+        base_url=os.getenv("DASHSCOPE_URL")
+    )
+
+
 # 获取Windows系统缩放比例的函数
 def get_windows_scaling():
     """获取Windows系统的缩放比例"""
@@ -44,15 +53,10 @@ def get_qwen3_vl_action(messages, model_id):
     使用 Qwen 模型执行 GUI 接地，以解释用户在屏幕截图上的查询。
     :param messages:
     :param model_id:
-    :param min_pixels:
-    :param max_pixels:
     :return:
     tuple(action)
     """
-    client = OpenAI(
-        api_key=os.getenv("DASHSCOPE_API_KEY"),
-        base_url=os.getenv("DASHSCOPE_URL")
-    )
+    client = get_client()
 
     # 初始化显示屏对象
     computerUse = ComputerUse(
@@ -67,6 +71,23 @@ def get_qwen3_vl_action(messages, model_id):
     print(output_text)
     action = json.loads(output_text.split('<tool_call>\n')[1].split('\n</tool_call>')[0])
     return output_text, action, computerUse
+
+
+def summarize_history(summary_messages, model_id):
+    """
+    调用模型对历史操作进行摘要压缩。
+    :param summary_messages: 用于摘要的消息列表
+    :param model_id: 模型ID
+    :return: 摘要文本
+    """
+    client = get_client()
+    completion = client.chat.completions.create(
+        model=model_id,
+        messages=summary_messages,
+    )
+    summary_text = completion.choices[0].message.content
+    print(f"=== 历史操作摘要 ===\n{summary_text}\n=== 摘要结束 ===")
+    return summary_text
 
 
 # 读取 prompt 文件夹下的所有文件
@@ -115,6 +136,13 @@ print(
     f"实际屏幕分辨率: {actual_screen_width}x{actual_screen_height}, 有效分辨率: {effective_width:.0f}x{effective_height:.0f}")
 
 while True:
+    # 检查是否需要对历史操作进行摘要压缩
+    if message.needs_summary():
+        print(f"图片数量达到 {message.image_count}，触发历史摘要压缩...")
+        summary_messages = message.get_summary_messages()
+        summary_text = summarize_history(summary_messages, MODEL)
+        message.compress_with_summary(summary_text)
+
     image_path = take_screenshot(target_width=actual_screen_width, target_height=actual_screen_height)
     message.add_image_message(image_path=image_path)
 
