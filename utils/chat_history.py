@@ -88,7 +88,6 @@ class Messages:
                 ],
             }
         ]
-        print(self.messages)
 
     def add_image_message(self, image_path):
         ext = Path(image_path).suffix.lower()

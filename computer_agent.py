@@ -146,7 +146,7 @@ while True:
     image_path = take_screenshot(target_width=actual_screen_width, target_height=actual_screen_height)
     message.add_image_message(image_path=image_path)
 
-    print(message.messages)
+    print(f"当前消息数: {len(message.messages)}, 图片数: {message.image_count}")
     output_text, action, computer_use = get_qwen3_vl_action(message.messages, MODEL)
     
     # 修正模型可能输出 click 而非 left_click 的问题
